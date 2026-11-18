@@ -1,0 +1,14 @@
+metric,edit_level,numerator,denominator,value
+recall_copy_grouped_with_original,light,101,167,0.6047904191616766
+recall_copy_grouped_with_original,medium,0,167,0.0
+recall_copy_grouped_with_original,heavy,0,166,0.0
+recall_copy_grouped_with_original,all,101,500,0.202
+precision_removed_doc_is_planted_copy_of_its_group,all,90,171,0.5263157894736842
+precision_excluding_main_run_duplicates,all,90,101,0.8910891089108911
+originals_wrongly_removed_E,all,0,38389,0.0
+removed_category_A_copy_removed_grouped_with_its_original,all,90,171,0.5263157894736842
+removed_category_B_copy_removed_not_with_its_original,all,0,171,0.0
+removed_category_C_original_removed_grouped_with_its_own_copy,all,11,171,0.06432748538011696
+removed_category_D_original_removed_also_removed_in_main_run,all,70,171,0.4093567251461988
+removed_category_E_original_removed_newly_not_with_its_own_copy,all,0,171,0.0
+main_run_removals_also_removed_here,all,70,70,1.0

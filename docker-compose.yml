@@ -1,0 +1,69 @@
+# Local "cluster": 1 NameNode + 2 DataNodes (HDFS, replication 2) + Spark master + N workers + a driver/pipeline container.
+#   docker compose up -d --build
+#   scripts/load_raw_to_hdfs.sh            # put data/raw/* into hdfs:///da/raw
+#   docker compose exec pipeline python3 -m da.pipeline run --stages ingest,clean,dedup,entities,embed_input
+#   ... GPU step on a T4 host (see README) ...
+#   docker compose exec pipeline python3 -m da.pipeline run --stages cluster,marts
+# Size workers in .env (WORKER_MEM, WORKER_CORES). UIs: HDFS :9870, Spark master :8080, running job :4040.
+x-spark: &spark
+  build: {context: ., dockerfile: docker/Dockerfile.spark}
+  image: da-spark:latest
+  user: root
+  volumes:
+    - ./:/app
+    - ./data/exchange:/exchange
+  depends_on: [namenode]
+
+services:
+  namenode:
+    image: apache/hadoop:3
+    hostname: namenode
+    command: ["hdfs", "namenode"]
+    ports: ["9870:9870", "8020:8020"]
+    env_file: [docker/hadoop.env]
+    environment:
+      ENSURE_NAMENODE_DIR: "/tmp/hadoop-root/dfs/name"
+    volumes:
+      - nn:/tmp/hadoop-root/dfs/name
+      - ./data/raw:/raw:ro
+  datanode1:
+    image: apache/hadoop:3
+    hostname: datanode1
+    command: ["hdfs", "datanode"]
+    env_file: [docker/hadoop.env]
+    volumes: [dn1:/tmp/hadoop-root/dfs/data]
+    depends_on: [namenode]
+  datanode2:
+    image: apache/hadoop:3
+    hostname: datanode2
+    command: ["hdfs", "datanode"]
+    env_file: [docker/hadoop.env]
+    volumes: [dn2:/tmp/hadoop-root/dfs/data]
+    depends_on: [namenode]
+
+  spark-master:
+    <<: *spark
+    hostname: spark-master
+    command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.master.Master", "--host", "spark-master"]
+    ports: ["8080:8080", "7077:7077"]
+  spark-worker:
+    <<: *spark
+    command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://spark-master:7077"]
+    environment:
+      SPARK_WORKER_CORES: ${WORKER_CORES:-2}
+      SPARK_WORKER_MEMORY: ${WORKER_MEM:-4g}
+    depends_on: [spark-master]
+    deploy: {replicas: 2}
+
+  pipeline:            # driver + CLI; `docker compose exec pipeline ...`
+    <<: *spark
+    hostname: pipeline
+    command: ["sleep", "infinity"]
+    ports: ["4040:4040", "8501:8501", "8600:8600"]
+    volumes:
+      - ./:/app
+      - ./data/exchange:/exchange
+      - ./data/export:/export
+    depends_on: [namenode, spark-master]
+
+volumes: {nn: {}, dn1: {}, dn2: {}}

@@ -1,0 +1,30 @@
+WARNING: Using incubator modules: jdk.incubator.vector
+26/11/02 23:17:54 WARN Shell: Did not find winutils.exe: java.io.FileNotFoundException: java.io.FileNotFoundException: HADOOP_HOME and hadoop.home.dir are unset. -see https://cwiki.apache.org/confluence/display/HADOOP2/WindowsProblems
+Using Spark's default log4j profile: org/apache/spark/log4j2-defaults.properties
+Setting default log level to "WARN".
+To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
+26/11/02 23:17:55 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Traceback (most recent call last):
+  File "C:\Users\Ankit\AppData\Local\Programs\Python\Python310\lib\runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "C:\Users\Ankit\AppData\Local\Programs\Python\Python310\lib\runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "D:\Big_Data\digital-archaeology\src\da\pipeline.py", line 42, in <module>
+    main()
+  File "D:\Big_Data\digital-archaeology\src\da\pipeline.py", line 36, in main
+    mod.run(cfg, spark, m)
+  File "D:\Big_Data\digital-archaeology\src\da\ingest.py", line 40, in run
+    courts = _csv(spark, f"{raw}/courts-*", ["id", "full_name", "jurisdiction"]).select(
+  File "D:\Big_Data\digital-archaeology\src\da\ingest.py", line 20, in _csv
+    .option("quote", '"').option("maxCharsPerColumn", -1).csv(path))
+  File "C:\Users\Ankit\AppData\Local\Programs\Python\Python310\lib\site-packages\pyspark\sql\readwriter.py", line 838, in csv
+    return self._df(self._jreader.csv(self._spark._sc._jvm.PythonUtils.toSeq(path)))
+  File "C:\Users\Ankit\AppData\Local\Programs\Python\Python310\lib\site-packages\py4j\java_gateway.py", line 1362, in __call__
+    return_value = get_return_value(
+  File "C:\Users\Ankit\AppData\Local\Programs\Python\Python310\lib\site-packages\pyspark\errors\exceptions\captured.py", line 288, in deco
+    raise converted from None
+pyspark.errors.exceptions.captured.IllegalArgumentException: Wrong FS: file://D:\Big_Data\digital-archaeology\data\raw/courts-*, expected: file:///
+run_id=20261102-231757-d6c3 scale=1.0 profile=None stages=['ingest', 'clean', 'dedup', 'entities', 'embed_input', 'embed', 'cluster', 'marts']
+SUCCESS: The process with PID 34620 (child process of PID 4528) has been terminated.
+SUCCESS: The process with PID 4528 (child process of PID 32404) has been terminated.
+SUCCESS: The process with PID 32404 (child process of PID 30184) has been terminated.

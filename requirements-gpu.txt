@@ -1,0 +1,6 @@
+# GPU host / Colab (only the embedding stage): pip install -r requirements-gpu.txt
+torch
+transformers
+pyarrow
+numpy
+pyyaml

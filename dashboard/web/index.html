@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Digital Archaeology · Illinois case law over two centuries</title>
+  <meta name="description" content="How entities and legal topics rise, fall and change framing across Illinois court opinions, computed by a Spark and GPU pipeline.">
+  <meta name="robots" content="noindex">
+  <meta property="og:title" content="Digital Archaeology">
+  <meta property="og:description" content="Entity and topic evolution across Illinois court opinions.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link button-sm" href="#main">Skip to content</a>
+
+  <header class="nav-wrap">
+    <nav class="nav" aria-label="Views">
+      <a class="nav-brand title-4" href="#entity" aria-label="Digital Archaeology home">
+        <i class="ph ph-columns" aria-hidden="true"></i><span>Digital Archaeology</span>
+      </a>
+      <div class="nav-links" role="list">
+        <a role="listitem" class="nav-link title-4" href="#entity" data-view="entity"><i class="ph ph-buildings" aria-hidden="true"></i><span>Entities</span></a>
+        <a role="listitem" class="nav-link title-4" href="#topic" data-view="topic"><i class="ph ph-books" aria-hidden="true"></i><span>Topics</span></a>
+        <a role="listitem" class="nav-link title-4" href="#pipeline" data-view="pipeline"><i class="ph ph-gauge" aria-hidden="true"></i><span>Pipeline</span></a>
+      </div>
+      <button class="icon-button" id="theme-toggle" type="button" aria-label="Switch to light theme">
+        <i class="ph ph-sun" aria-hidden="true"></i>
+      </button>
+    </nav>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <!-- filters scope every chart below them (court level, years, smoothing) -->
+    <section class="filters" id="filters" aria-label="Filters">
+      <fieldset class="filter">
+        <legend class="caption-3">Court level</legend>
+        <div class="chips" id="court-chips"></div>
+      </fieldset>
+      <div class="filter">
+        <span class="caption-3" id="years-label">Years</span>
+        <div class="year-range" role="group" aria-labelledby="years-label">
+          <label class="sr-only" for="year-from">From year</label>
+          <input class="field body-6" id="year-from" type="number" inputmode="numeric">
+          <span class="caption-2 muted" aria-hidden="true">to</span>
+          <label class="sr-only" for="year-to">To year</label>
+          <input class="field body-6" id="year-to" type="number" inputmode="numeric">
+        </div>
+        <p class="caption-5 field-error" id="year-error" role="alert" hidden></p>
+      </div>
+      <div class="filter">
+        <label class="caption-3" for="smooth">Smoothing</label>
+        <select class="field body-6" id="smooth">
+          <option value="1">None</option>
+          <option value="3" selected>3 years</option>
+          <option value="5">5 years</option>
+          <option value="9">9 years</option>
+        </select>
+      </div>
+      <div class="filter filter-stat">
+        <span class="caption-3">Opinions in view</span>
+        <span class="title-1 num" id="docs-in-view">…</span>
+      </div>
+    </section>
+
+    <div id="page-error" class="banner body-6" role="alert" hidden></div>
+
+    <!-- ================================================================ entity view -->
+    <section class="view" id="view-entity" data-view="entity" aria-labelledby="entity-heading" hidden>
+      <div class="view-head">
+        <h1 class="heading-4 hero-gradient" id="entity-heading">How an entity's presence<br>and framing change over time</h1>
+        <p class="body-3 secondary">Agencies, statutes and companies resolved across spelling variants and OCR errors, then traced through every opinion in the sample.</p>
+      </div>
+
+      <div class="pickers">
+        <div class="picker">
+          <label class="caption-3" for="entity-search">Entity</label>
+          <div class="combo">
+            <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+            <input class="field body-6" id="entity-search" list="entity-list" placeholder="Search 2,000 entities" autocomplete="off">
+            <datalist id="entity-list"></datalist>
+          </div>
+          <p class="caption-5 field-error" id="entity-error" role="alert" hidden></p>
+        </div>
+        <div class="picker">
+          <span class="caption-3" id="compare-label">Compare with (up to 4)</span>
+          <div class="chips" id="compare-chips" aria-labelledby="compare-label"></div>
+          <div class="combo combo-small">
+            <i class="ph ph-plus" aria-hidden="true"></i>
+            <label class="sr-only" for="compare-search">Add an entity to compare</label>
+            <input class="field body-6" id="compare-search" list="entity-list" placeholder="Add an entity" autocomplete="off">
+          </div>
+        </div>
+      </div>
+
+      <div class="tiles" id="entity-tiles"></div>
+
+      <article class="card" id="card-presence">
+        <header class="card-head">
+          <h2 class="title-2">Presence</h2>
+          <p class="caption-2 secondary">Opinions mentioning the entity per 10,000 opinions filed that year, in the selected courts</p>
+        </header>
+        <div class="chart" id="chart-presence"></div>
+      </article>
+
+      <div class="grid-2">
+        <article class="card" id="card-areas">
+          <header class="card-head">
+            <h2 class="title-2">Which legal areas it appears in</h2>
+            <p class="caption-2 secondary">Share of its opinions per decade by topic, all courts</p>
+          </header>
+          <div class="chart" id="chart-areas"></div>
+        </article>
+        <article class="card" id="card-framing">
+          <header class="card-head">
+            <h2 class="title-2">How it is framed</h2>
+            <p class="caption-2 secondary">Words unusually frequent near the entity in each decade, darker is more distinctive</p>
+          </header>
+          <div class="chart" id="chart-framing"></div>
+        </article>
+      </div>
+
+      <article class="card" id="card-examples">
+        <header class="card-head card-head-row">
+          <div>
+            <h2 class="title-2">In their own words</h2>
+            <p class="caption-2 secondary">Passages around the mention, by decade</p>
+          </div>
+          <div class="chips" id="decade-chips" role="group" aria-label="Decade"></div>
+        </header>
+        <div id="examples"></div>
+      </article>
+
+      <article class="card" id="card-live">
+        <header class="card-head card-head-row">
+          <div>
+            <h2 class="title-2">Run it live on Spark</h2>
+            <p class="caption-2 secondary">Counts opinions per year for this entity with a distributed query over the partitioned parquet lake, right now</p>
+          </div>
+          <button class="button button-primary button-md" id="live-run" type="button">
+            <i class="ph ph-lightning" aria-hidden="true"></i><span>Run live query</span>
+          </button>
+        </header>
+        <div id="live-status" class="body-6 secondary" aria-live="polite"></div>
+        <div class="chart" id="chart-live"></div>
+      </article>
+    </section>
+
+    <!-- ================================================================ topic view -->
+    <section class="view" id="view-topic" data-view="topic" aria-labelledby="topic-heading" hidden>
+      <div class="view-head">
+        <h1 class="heading-4 hero-gradient" id="topic-heading">How legal topics<br>rise and fall</h1>
+        <p class="body-3 secondary">Thirty topics found by clustering MiniLM embeddings of every opinion with Spark KMeans, labeled by their most distinctive words.</p>
+      </div>
+
+      <article class="card" id="card-topic-map">
+        <header class="card-head">
+          <h2 class="title-2">Topic share by decade</h2>
+          <p class="caption-2 secondary">Percent of opinions in each decade assigned to the topic. Select a row for detail.</p>
+        </header>
+        <div class="chart" id="chart-topic-map"></div>
+      </article>
+
+      <div class="grid-2 grid-2-wide">
+        <article class="card" id="card-topic-detail">
+          <header class="card-head">
+            <h2 class="title-2" id="topic-detail-title">Topic</h2>
+            <p class="caption-2 secondary" id="topic-detail-sub"></p>
+          </header>
+          <h3 class="caption-3 secondary">Keywords</h3>
+          <div class="chips chips-static" id="topic-keywords"></div>
+          <h3 class="caption-3 secondary section-gap">Most associated entities</h3>
+          <div id="topic-entities"></div>
+        </article>
+        <article class="card" id="card-topic-trend">
+          <header class="card-head">
+            <h2 class="title-2">Share over time</h2>
+            <p class="caption-2 secondary">Percent of opinions filed each year, in the selected courts</p>
+          </header>
+          <div class="chart" id="chart-topic-trend"></div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ================================================================ pipeline view -->
+    <section class="view" id="view-pipeline" data-view="pipeline" aria-labelledby="pipeline-heading" hidden>
+      <div class="view-head">
+        <h1 class="heading-4 hero-gradient" id="pipeline-heading">Where the pipeline<br>spends its time</h1>
+        <p class="body-3 secondary">Every stage is timed. Spark task time splits into compute, shuffle and GC, and the GPU stage is CUDA synchronised.</p>
+      </div>
+
+      <div class="filter">
+        <span class="caption-3" id="scale-label">Data scale</span>
+        <div class="chips" id="scale-chips" role="group" aria-labelledby="scale-label"></div>
+      </div>
+
+      <div class="tiles" id="pipeline-tiles"></div>
+
+      <article class="card" id="card-split">
+        <header class="card-head">
+          <h2 class="title-2">Wall clock by category</h2>
+          <p class="caption-2 secondary" id="split-sub"></p>
+        </header>
+        <div id="chart-split"></div>
+      </article>
+
+      <div class="grid-2">
+        <article class="card" id="card-stages">
+          <header class="card-head">
+            <h2 class="title-2">Wall clock by stage</h2>
+            <p class="caption-2 secondary">Seconds, in pipeline order</p>
+          </header>
+          <div class="chart" id="chart-stages"></div>
+        </article>
+        <article class="card" id="card-scaling">
+          <header class="card-head">
+            <h2 class="title-2">Scaling</h2>
+            <p class="caption-2 secondary">Wall clock seconds per category as the sample grows</p>
+          </header>
+          <div class="chart" id="chart-scaling"></div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer caption-5 muted">
+    <span>Illinois opinions from the Caselaw Access Project, Harvard Law School Library.</span>
+    <span>Spark ETL · MiniLM on GPU · Spark MLlib KMeans</span>
+  </footer>
+
+  <div class="tooltip" id="tooltip" role="status" hidden></div>
+  <script src="app.js" type="module"></script>
+</body>
+</html>

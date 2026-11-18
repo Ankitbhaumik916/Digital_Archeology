@@ -1,0 +1,14 @@
+.venv
+data/
+bench/*.png
+__pycache__/
+*.pyc
+spark-warehouse/
+metastore_db/
+derby.log
+.pytest_cache/
+quality_checks/lake/
+tools/hadoop/bin/
+bench/*.bak
+bench/dashboard_server.log
+bench/streamlit.log

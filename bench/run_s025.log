@@ -1,0 +1,59 @@
+WARNING: Using incubator modules: jdk.incubator.vector
+Using Spark's default log4j profile: org/apache/spark/log4j2-defaults.properties
+Setting default log level to "WARN".
+To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
+run_id=s025 scale=0.25 profile=None stages=['ingest', 'clean', 'dedup', 'entities', 'embed_input', 'embed', 'cluster', 'marts']
+[stage:ingest] wall=15.2s task_run_s=47.053 shuffle_wait_s=0.0 compute_s=44.669
+ingested 39,183 opinions -> file:///D:/Big_Data/digital-archaeology/data/raw_parquet
+[io_probe:raw_parquet] scan-only read 0.9s
+[stage:clean] wall=69.0s task_run_s=532.137 shuffle_wait_s=0.0 compute_s=531.0
+clean: 39,183 -> 38,389 opinions kept (794 dropped as short/noisy)
+[io_probe:clean] scan-only read 0.6s
+[stage:dedup_exact] wall=0.5s task_run_s=1.195 shuffle_wait_s=0.0 compute_s=0.873
+[stage:dedup_near] wall=46.0s task_run_s=322.811 shuffle_wait_s=0.0 compute_s=322.026
+dedup: 38,389 -> 38,319 (exact 15, near 55; 133 verified edges)
+[stage:entities_extract] wall=22.1s task_run_s=161.299 shuffle_wait_s=0.0 compute_s=161.299
+[stage:entities_vocab] wall=1.0s task_run_s=4.53 shuffle_wait_s=0.0 compute_s=4.155
+[stage:entities_resolve] wall=13.0s task_run_s=80.949 shuffle_wait_s=0.0 compute_s=80.571
+[stage:entities_finalize] wall=13.8s task_run_s=66.225 shuffle_wait_s=0.0 compute_s=64.561
+entities: 10,736 surface forms -> 9,856 resolved entities
+[stage:embed_input] wall=10.9s task_run_s=67.98 shuffle_wait_s=0.0 compute_s=67.696
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+embed_input: 38,319 opinions x <= 4 segments -> file:///D:/Big_Data/digital-archaeology/data/exchange/embed_input
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 5830.77it/s]
+[1mBertModel LOAD REPORT[0m from: sentence-transformers/all-MiniLM-L6-v2
+Key                     | Status     |  | 
+------------------------+------------+--+-
+embeddings.position_ids | UNEXPECTED |  | 
+
+[3mNotes:
+- UNEXPECTED[3m	:can be ignored when loading from different task/architecture; not ok if you expect identical arch.[0m
+  shard 0: 19160 docs / 71801 segments  (gpu 28.0s, tok 16.4s)
+  shard 1: 19159 docs / 71919 segments  (gpu 55.8s, tok 32.9s)
+[stage:embeddings_import] wall=1.1s task_run_s=1.828 shuffle_wait_s=0.0 compute_s=1.828
+cluster: 38,319 opinion embeddings
+[stage:cluster_fit] wall=6.7s task_run_s=37.829 shuffle_wait_s=0.0 compute_s=36.62
+[stage:topic_keywords] wall=63.3s task_run_s=468.152 shuffle_wait_s=0.0 compute_s=466.123
+  topic  17 ( 2,297): deed, mortgage, sale, property, title, decree, said, land
+  topic  18 ( 2,252): filed, action, entered, cause, complaint, petition, jurisdiction, circuit
+  topic   9 ( 2,023): people, testified, police, testimony, evidence, witness, jury, state
+  topic  12 ( 1,936): note, said, payment, contract, interest, made, amount, notes
+  topic   5 ( 1,712): board, illinois, complaint, department, commission, action, state, decision
+  topic  29 ( 1,608): jury, evidence, verdict, error, instruction, said, instructions, witness
+  topic  15 ( 1,580): counsel, people, petition, state, hearing, guilty, conviction, plea
+  topic   1 ( 1,526): estate, testator, death, trust, said, probate, property, heirs
+  topic  27 ( 1,379): contract, evidence, said, made, jury, suit, time, bill
+  topic  14 ( 1,376): child, marriage, children, custody, support, divorce, petition, parties
+  marts/docs_year: 439 rows
+  marts/topics: 30 rows
+  marts/topic_year: 7,138 rows
+  marts/entities: 2,000 rows
+  marts/entity_year: 50,700 rows
+  marts/entity_topic_decade: 48,241 rows
+  marts/entity_context_decade: 24,091 rows
+  marts/examples: 44,189 rows
+[stage:marts] wall=11.5s task_run_s=61.977 shuffle_wait_s=0.0 compute_s=49.602
+marts exported to D:\Big_Data\digital-archaeology\data\export
+SUCCESS: The process with PID 13180 (child process of PID 37808) has been terminated.
+SUCCESS: The process with PID 37808 (child process of PID 13092) has been terminated.
+SUCCESS: The process with PID 13092 (child process of PID 8972) has been terminated.

@@ -1,0 +1,11 @@
+# Spark image with the Python deps our pandas-UDFs need (must exist on EVERY worker, not just the driver).
+# If this tag is not available on Docker Hub, pick another from https://hub.docker.com/r/apache/spark/tags
+# and set PYSPARK_VERSION to the same Spark version.
+ARG SPARK_IMAGE=apache/spark:4.0.1-scala2.13-java17-python3-ubuntu
+FROM ${SPARK_IMAGE}
+ARG PYSPARK_VERSION=4.0.1
+USER root
+RUN pip3 install --no-cache-dir "pyspark==${PYSPARK_VERSION}" numpy pandas pyarrow scipy rapidfuzz pyyaml matplotlib scikit-learn
+ENV PYTHONPATH=/app/src \
+    DA_PROFILE=docker
+WORKDIR /app

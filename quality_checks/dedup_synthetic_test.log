@@ -1,0 +1,37 @@
+WARNING: Using incubator modules: jdk.incubator.vector
+Using Spark's default log4j profile: org/apache/spark/log4j2-defaults.properties
+Setting default log level to "WARN".
+To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
+combined clean: 38,389 original + 500 copies = 38,889 rows -> D:\Big_Data\digital-archaeology\quality_checks\lake\clean
+dedup params: num_perm=125 bands=25 rows=5 jaccard=0.6 shingle_words=5
+[stage:dedup_exact] wall=3.1s task_run_s=3.255 shuffle_wait_s=0.0 compute_s=3.22
+[stage:dedup_near] wall=133.1s task_run_s=207.498 shuffle_wait_s=0.0 compute_s=206.992
+dedup: 38,889 -> 38,718 (exact 15, near 156; 234 verified edges)
+
+== results (exact counts)
+                                                         metric edit_level  numerator  denominator    value
+                              recall_copy_grouped_with_original      light        101          167 0.604790
+                              recall_copy_grouped_with_original     medium          0          167 0.000000
+                              recall_copy_grouped_with_original      heavy          0          166 0.000000
+                              recall_copy_grouped_with_original        all        101          500 0.202000
+             precision_removed_doc_is_planted_copy_of_its_group        all         90          171 0.526316
+                        precision_excluding_main_run_duplicates        all         90          101 0.891089
+                                    originals_wrongly_removed_E        all          0        38389 0.000000
+      removed_category_A_copy_removed_grouped_with_its_original        all         90          171 0.526316
+          removed_category_B_copy_removed_not_with_its_original        all          0          171 0.000000
+  removed_category_C_original_removed_grouped_with_its_own_copy        all         11          171 0.064327
+   removed_category_D_original_removed_also_removed_in_main_run        all         70          171 0.409357
+removed_category_E_original_removed_newly_not_with_its_own_copy        all          0          171 0.000000
+                            main_run_removals_also_removed_here        all         70           70 1.000000
+
+== per edit level: measured edits and MinHash Jaccard estimate (copy vs original)
+              n  change_frac_mean  change_frac_min  change_frac_max  jaccard_median  jaccard_max  copies_failing_clean_filter
+edit_level                                                                                                                   
+light       167          0.050054         0.048583         0.052980           0.624        0.712                            0
+medium      167          0.178662         0.150205         0.457275           0.288        0.392                            1
+heavy       166          0.337679         0.304195         0.546584           0.092        0.176                            0
+
+removed total 171; by reason: {'near': 156, 'exact': 15}
+SUCCESS: The process with PID 9664 (child process of PID 17116) has been terminated.
+SUCCESS: The process with PID 17116 (child process of PID 25360) has been terminated.
+SUCCESS: The process with PID 25360 (child process of PID 31172) has been terminated.

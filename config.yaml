@@ -1,0 +1,110 @@
+# Pipeline configuration. Select a profile with DA_PROFILE=<name> (see `profiles:` at the bottom).
+# Any path can be overridden with DA_BASE (data root) and DA_RAW (raw bulk files).
+
+paths:
+  base: data                 # data root; local path (relative to repo) or hdfs://namenode:8020/da
+  raw: data/raw              # CourtListener bulk files: opinions-*.csv[.bz2], opinion-clusters-*, dockets-*, courts-*
+  export: data/export        # small serving marts for the dashboard (always a LOCAL dir)
+  exchange: data/exchange    # LOCAL dir shared with the GPU host (embed_input out, embeddings in); mount it in every container
+
+spark:
+  master: local[8]            # 20 cores but ~4 GB free RAM: 20 Python workers x 2000-doc Arrow batches crashed clean
+  conf:
+    spark.driver.memory: 4g
+    spark.driver.extraJavaOptions: -Dio.netty.tryReflectionSetAccessible=true
+    spark.executor.extraJavaOptions: -Dio.netty.tryReflectionSetAccessible=true
+    spark.sql.shuffle.partitions: 16
+    spark.sql.adaptive.enabled: true
+    spark.sql.adaptive.coalescePartitions.enabled: true
+    spark.sql.execution.arrow.pyspark.enabled: true
+    spark.sql.execution.arrow.maxRecordsPerBatch: 256
+    spark.sql.parquet.compression.codec: zstd
+    spark.sql.sources.partitionOverwriteMode: dynamic
+    spark.ui.retainedStages: 100000
+    spark.ui.showConsoleProgress: false
+    spark.python.worker.faulthandler.enabled: true
+    spark.sql.execution.pyspark.udf.faulthandler.enabled: true
+    spark.ui.retainedJobs: 100000
+    spark.sql.files.maxPartitionBytes: 64m
+
+ingest:
+  min_year: 1818             # Illinois statehood; drops mis-dated CAP cases (e.g. 1771)
+  max_year: 2025
+  sample_fraction: 1.0       # deterministic hash sample on cluster_id (0.1 subset of 0.25 subset of 1.0)
+  text_columns: [plain_text, html_with_citations, html_columbia, html_lawbox, xml_harvard, html]
+
+clean:
+  min_words: 150
+  max_noise: 0.25            # drop opinions whose OCR-noise score exceeds this
+  max_chars: 400000          # truncate pathological opinions
+
+dedup:
+  shingle_words: 5
+  num_perm: 125
+  bands: 25                  # 25 bands x 5 rows -> LSH threshold ~0.53, P(candidate | J=0.7) ~ 0.99
+  jaccard: 0.60              # verified on the full signature. OCR re-scans of one opinion measure J~0.4-0.8
+  max_bucket: 300            # buckets larger than this are compared with a sliding window
+  window: 10
+  cc_spark_threshold: 20000000   # edge count above which connected components run in Spark instead of on the driver
+
+entities:
+  min_df: 3                  # entity surface forms must appear in >= min_df opinions
+  max_vocab: 500000
+  max_per_doc: 80
+  ctx_chars: 70
+  lsh_perm: 64
+  lsh_bands: 16              # 16 bands x 4 rows over char 3-grams
+  max_bucket: 300
+  window: 10
+  dashboard_entities: 2000   # entities with context/topic marts
+
+embed_input:
+  segments: 4                # text segments sampled evenly across each opinion
+  segment_chars: 1400
+
+embed:
+  backend: st                # st = sentence-transformers / HF on GPU (real), hash = CPU smoke test only
+  model: sentence-transformers/all-MiniLM-L6-v2
+  max_len: 256
+  batch_size: 256
+  fp16: true
+  shard_docs: 20000
+
+cluster:
+  k: 30                      # int, or auto = silhouette sweep over k_candidates
+  k_candidates: [20, 30, 40, 60]
+  silhouette_sample: 50000
+  max_iter: 60
+  seed: 42
+  topic_keywords: 12
+  topic_sample_per_topic: 1500
+
+profiles:
+  docker:
+    paths:
+      base: hdfs://namenode:8020/da
+      raw: hdfs://namenode:8020/da/raw
+      exchange: /exchange
+      export: /export
+    spark:
+      master: spark://spark-master:7077
+      conf:
+        spark.driver.memory: 2g
+        spark.driver.host: pipeline
+        spark.executor.memory: 3g
+        spark.executor.cores: 2
+        spark.sql.shuffle.partitions: 64
+  test:
+    spark:
+      conf:
+        spark.driver.memory: 3g
+        spark.sql.shuffle.partitions: 8
+    entities: {min_df: 3}
+    clean: {min_words: 60}
+    cluster:
+      k: auto
+      k_candidates: [6, 8, 10, 12]
+      silhouette_sample: 5000
+      topic_sample_per_topic: 300
+    embed_input: {segments: 3, segment_chars: 1200}
+    embed: {backend: hash, batch_size: 64, shard_docs: 5000}

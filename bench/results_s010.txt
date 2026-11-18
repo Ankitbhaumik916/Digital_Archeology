@@ -1,0 +1,38 @@
+== row counts
+  raw (ingested)     15,789
+  clean              15,446
+  deduplicated       15,430
+  surface forms       4,789
+  resolved entities   4,463
+
+== 15 biggest entities (by docs) and their merged spellings
+   1,463 docs  ILCS                                           [1 forms] ilcs (1463)
+     613 docs  Civil Practice Act                             [2 forms] civil practice act (600), cpa (15)
+     468 docs  First District                                 [1 forms] first district (468)
+     454 docs  Trust Co                                       [1 forms] trust (454)
+     370 docs  MORAN                                          [1 forms] moran (370)
+     361 docs  Board of Education                             [3 forms] board of education (350), state board of education (23), boards of education (6)
+     339 docs  Industrial Commission                          [1 forms] industrial commission (339)
+     310 docs  BARRY                                          [1 forms] barry (310)
+     304 docs  Savings Bank                                   [1 forms] savings bank (304)
+     303 docs  GREEN                                          [1 forms] green (303)
+     272 docs  Department of Corrections                      [2 forms] department of corrections (261), doc (44)
+     271 docs  Chicago Title and Trust Company                [1 forms] chicago title and trust (271)
+     262 docs  IPI                                            [1 forms] ipi (262)
+     260 docs  LORENZ                                         [1 forms] lorenz (260)
+     260 docs  Chicago Transit Authority                      [2 forms] chicago transit authority (246), cta (45)
+
+== topic keywords (first 10 of 30, largest first)
+  t2   1,044 docs  people, testified, police, testimony, evidence, jury, state, told, witness, defense, victim, murder
+  t29    919 docs  deed, mortgage, sale, property, title, decree, said, land, trust, bill, estate, interest
+  t4     846 docs  filed, entered, jurisdiction, circuit, county, said, cause, decree, error, bond, action, writ
+  t21    713 docs  people, sentence, counsel, plea, guilty, petition, state, probation, hearing, conviction, attorney, criminal
+  t19    695 docs  complaint, action, filed, illinois, circuit, cause, dismiss, hearing, state, jurisdiction, petition, statute
+  t13    688 docs  bank, note, said, interest, trust, money, payment, amount, made, paid, notes, loan
+  t0     642 docs  corporation, company, stock, business, agreement, contract, partnership, sale, said, shares, made, action
+  t12    615 docs  estate, death, testator, trust, said, property, probate, children, heirs, decedent, deceased, life
+  t17    606 docs  said, evidence, error, note, bill, made, plea, cause, jury, suit, declaration, action
+  t23    544 docs  offense, people, sentence, criminal, conviction, state, felony, guilty, armed, indictment, aggravated, robbery
+
+== embedding throughput (bench/metrics.jsonl)
+   {'run_id': 's010', 'stage': 'embed_gpu', 'kind': 'gpu', 'tokenise_s': 73.951, 'gpu_s': 28.26, 'segments': 57869, 'wall_s': 79.19, 'device': 'NVIDIA GeForce RTX 4060 Laptop GPU', 'model': 'sentence-transformers/all-MiniLM-L6-v2', 'batch_size': 256, 'segments_per_s': 730.757}

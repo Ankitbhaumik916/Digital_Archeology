@@ -1,0 +1,12 @@
+pyspark==4.0.1
+numpy
+pandas
+pyarrow
+scipy
+rapidfuzz
+pyyaml
+matplotlib
+scikit-learn      # evaluation only
+streamlit>=1.50
+plotly
+pytest

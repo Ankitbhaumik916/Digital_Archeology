@@ -1,0 +1,58 @@
+WARNING: Using incubator modules: jdk.incubator.vector
+Using Spark's default log4j profile: org/apache/spark/log4j2-defaults.properties
+Setting default log level to "WARN".
+To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
+run_id=s010 scale=1.0 profile=None stages=['clean', 'dedup', 'entities', 'embed_input', 'embed', 'cluster', 'marts']
+[stage:clean] wall=80.7s task_run_s=423.607 shuffle_wait_s=0.0 compute_s=422.01
+clean: 15,789 -> 15,446 opinions kept (343 dropped as short/noisy)
+[io_probe:clean] scan-only read 0.4s
+[stage:dedup_exact] wall=0.7s task_run_s=1.445 shuffle_wait_s=0.0 compute_s=1.182
+[stage:dedup_near] wall=34.0s task_run_s=140.359 shuffle_wait_s=0.0 compute_s=139.921
+dedup: 15,446 -> 15,430 (exact 6, near 10; 12 verified edges)
+[stage:entities_extract] wall=42.8s task_run_s=201.821 shuffle_wait_s=0.0 compute_s=201.821
+[stage:entities_vocab] wall=5.4s task_run_s=16.084 shuffle_wait_s=0.0 compute_s=14.368
+[stage:entities_resolve] wall=16.3s task_run_s=36.926 shuffle_wait_s=0.0 compute_s=35.311
+[stage:entities_finalize] wall=37.9s task_run_s=125.641 shuffle_wait_s=0.0 compute_s=116.143
+entities: 4,789 surface forms -> 4,463 resolved entities
+[stage:embed_input] wall=15.8s task_run_s=60.57 shuffle_wait_s=0.0 compute_s=60.064
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+C:\Users\Ankit\AppData\Local\Programs\Python\Python310\lib\site-packages\huggingface_hub\file_download.py:129: UserWarning: `huggingface_hub` cache-system uses symlinks by default to efficiently store duplicated files but your machine does not support them in C:\Users\Ankit\.cache\huggingface\hub\models--sentence-transformers--all-MiniLM-L6-v2. Caching files will still work but in a degraded version that might require more space on your disk. This warning can be disabled by setting the `HF_HUB_DISABLE_SYMLINKS_WARNING` environment variable. For more details, see https://huggingface.co/docs/huggingface_hub/how-to-cache#limitations.
+To support symlinks on Windows, you either need to activate Developer Mode or to run Python as an administrator. In order to activate developer mode, see this article: https://docs.microsoft.com/en-us/windows/apps/get-started/enable-your-device-for-development
+  warnings.warn(message)
+embed_input: 15,430 opinions x <= 4 segments -> file:///D:/Big_Data/digital-archaeology/data/exchange/embed_input
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]Loading weights: 100%|██████████| 103/103 [00:00<00:00, 3036.57it/s]
+[1mBertModel LOAD REPORT[0m from: sentence-transformers/all-MiniLM-L6-v2
+Key                     | Status     |  | 
+------------------------+------------+--+-
+embeddings.position_ids | UNEXPECTED |  | 
+
+[3mNotes:
+- UNEXPECTED[3m	:can be ignored when loading from different task/architecture; not ok if you expect identical arch.[0m
+  shard 0: 15430 docs / 57869 segments  (gpu 28.3s, tok 74.0s)
+[stage:embeddings_import] wall=4.7s task_run_s=3.69 shuffle_wait_s=0.0 compute_s=3.69
+cluster: 15,430 opinion embeddings
+[stage:cluster_fit] wall=24.0s task_run_s=119.186 shuffle_wait_s=0.0 compute_s=116.61
+[stage:topic_keywords] wall=50.7s task_run_s=321.937 shuffle_wait_s=0.0 compute_s=319.302
+  topic   2 ( 1,044): people, testified, police, testimony, evidence, jury, state, told
+  topic  29 (   919): deed, mortgage, sale, property, title, decree, said, land
+  topic   4 (   846): filed, entered, jurisdiction, circuit, county, said, cause, decree
+  topic  21 (   713): people, sentence, counsel, plea, guilty, petition, state, probation
+  topic  19 (   695): complaint, action, filed, illinois, circuit, cause, dismiss, hearing
+  topic  13 (   688): bank, note, said, interest, trust, money, payment, amount
+  topic   0 (   642): corporation, company, stock, business, agreement, contract, partnership, sale
+  topic  12 (   615): estate, death, testator, trust, said, property, probate, children
+  topic  17 (   606): said, evidence, error, note, bill, made, plea, cause
+  topic  23 (   544): offense, people, sentence, criminal, conviction, state, felony, guilty
+  marts/docs_year: 419 rows
+  marts/topics: 30 rows
+  marts/topic_year: 4,992 rows
+  marts/entities: 2,000 rows
+  marts/entity_year: 26,870 rows
+  marts/entity_topic_decade: 26,486 rows
+  marts/entity_context_decade: 9,910 rows
+  marts/examples: 26,245 rows
+[stage:marts] wall=6.7s task_run_s=28.62 shuffle_wait_s=0.0 compute_s=22.764
+marts exported to D:\Big_Data\digital-archaeology\data\export
+SUCCESS: The process with PID 24940 (child process of PID 29012) has been terminated.
+SUCCESS: The process with PID 29012 (child process of PID 32008) has been terminated.
+SUCCESS: The process with PID 32008 (child process of PID 21856) has been terminated.

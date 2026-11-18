@@ -1,0 +1,38 @@
+== row counts
+  raw (ingested)     39,183
+  clean              38,389
+  deduplicated       38,319
+  surface forms      10,736
+  resolved entities   9,856
+
+== 15 biggest entities (by docs) and their merged spellings
+   3,591 docs  ILCS                                           [1 forms] ilcs (3591)
+   1,515 docs  Civil Practice Act                             [2 forms] civil practice act (1495), cpa (24)
+   1,141 docs  Trust Company                                  [1 forms] trust (1141)
+   1,130 docs  First District                                 [1 forms] first district (1130)
+     928 docs  MORAN                                          [2 forms] moran (925), morgan (3)
+     851 docs  Board of Education                             [4 forms] board of education (823), state board of education (50), boards of education (12), board of educations (7)
+     814 docs  Industrial Commission                          [1 forms] industrial commission (814)
+     805 docs  Savings Bank                                   [2 forms] savings bank (797), state savings bank (10)
+     775 docs  BARRY                                          [1 forms] barry (775)
+     770 docs  GREEN                                          [1 forms] green (770)
+     708 docs  Chicago Title and Trust Company                [1 forms] chicago title and trust (708)
+     695 docs  SCOTT                                          [2 forms] scott (679), scott and (16)
+     687 docs  LORENZ                                         [1 forms] lorenz (687)
+     646 docs  ALLOY                                          [1 forms] alloy (646)
+     640 docs  Illinois Central Railroad Company              [3 forms] illinois central railroad (631), illinois central eailroad (13), illinois central bailroad (12)
+
+== topic keywords (first 10 of 30, largest first)
+  t17  2,297 docs  deed, mortgage, sale, property, title, decree, said, land, trust, interest, estate, bill
+  t18  2,252 docs  filed, action, entered, cause, complaint, petition, jurisdiction, circuit, notice, attorney, time, final
+  t9   2,023 docs  people, testified, police, testimony, evidence, witness, jury, state, told, officer, statement, defense
+  t12  1,936 docs  note, said, payment, contract, interest, made, amount, notes, paid, bill, money, suit
+  t5   1,712 docs  board, illinois, complaint, department, commission, action, state, decision, administrative, employee, service, filed
+  t29  1,608 docs  jury, evidence, verdict, error, instruction, said, instructions, witness, made, testimony, cause, counsel
+  t15  1,580 docs  counsel, people, petition, state, hearing, guilty, conviction, plea, jury, attorney, post, right
+  t1   1,526 docs  estate, testator, death, trust, said, probate, property, heirs, children, deceased, widow, life
+  t27  1,379 docs  contract, evidence, said, made, jury, suit, time, bill, paid, property, amount, verdict
+  t14  1,376 docs  child, marriage, children, custody, support, divorce, petition, parties, decree, father, maintenance, marital
+
+== embedding throughput (bench/metrics.jsonl)
+   {'run_id': 's025', 'stage': 'embed_gpu', 'kind': 'gpu', 'tokenise_s': 32.929, 'gpu_s': 55.761, 'segments': 143720, 'wall_s': 57.227, 'device': 'NVIDIA GeForce RTX 4060 Laptop GPU', 'model': 'sentence-transformers/all-MiniLM-L6-v2', 'batch_size': 256, 'segments_per_s': 2511.396}
